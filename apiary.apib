@@ -1,0 +1,47 @@
+FORMAT: 1A
+HOST: http://search.kulcare.com/
+
+# Kulcare Search
+
+Kulcare Search Queries
+
+## Medicines [/medicines]
+
+### List Medicines [GET]
+
++ Parameters
+    + id (string) - ID
+    + name (string) - Name
+    + page (string) - Page Number (default: 0)
+    + perpage (string) - Number of results per page (default: 10)
+    + sort_by (string) - id/name (default: name)
+    + sort_order (string) - asc/desc (default: asc)
+
++ Response 200 (application/json)
+
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "medicines_production",
+                    "_type": "medicine",
+                    "_id": "24791",
+                    "_score": null,
+                    "_source": {
+                        "id": 24791,
+                        "name": "Crocin (1000 mg)",
+                        "manufacturer": "Glaxo Smithkline Pharmaceuticals Ltd.",
+                        "med_type": "Tablet",
+                        "category": null,
+                        "unit": "1 Tablet",
+                        "package_unit": "10 Tablet",
+                        "price": 12.39,
+                        "price_per_unit": 1.24
+                    },
+                    "sort": [
+                        "1000"
+                    ]
+                }
+            ]
+        }
