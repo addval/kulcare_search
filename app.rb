@@ -1,5 +1,5 @@
 require 'sinatra'
-require 'rest_client'
+require 'elasticsearch'
 require 'byebug'
 
 class KulcareSearch < Sinatra::Base
@@ -24,19 +24,49 @@ class KulcareSearch < Sinatra::Base
   private
 
   def get_medicines(i, params)
-    url = "http://localhost:9200/#{i}/_search"
+    # Attribute Filters
+    must_filter = []
+    must_filter.push(match: { id: params[:id] }) if params[:id]
+    must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
 
-    if params[:name]
-      data = '{
-                "query": {
-                  "match": {
-                    "name": "' + params[:name] + '"
-                  }
-                }
-              }'
-    else
-      data = nil
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = sort_filter(params[:sort_order], params[:sort_by])
+
+    search_query =  {
+                      query: {
+                        filtered: {
+                          filter: {
+                            bool: {
+                              must: must_filter
+                            }
+                          }
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new log: true
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
+  def sort_filter(sort_order, sort_by)
+    sort_filter = []
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
     end
-    RestClient.post url, data
+    sort_filter
   end
 end
