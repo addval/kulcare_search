@@ -10,32 +10,30 @@ class KulcareSearch < Sinatra::Base
   end
 
   get '/medicines_development' do
-    get_medicines('development', params)
+    get_medicines('medicines_development', params)
   end
 
   get '/medicines_staging' do
-    get_medicines('staging', params)
+    get_medicines('medicines_staging', params)
   end
 
   get '/medicines' do
-    get_medicines('production', params)
+    get_medicines('medicines_production', params)
   end
 
   private
 
-  def get_medicines(env, params)
-    case env
-    when 'development'
-      medicines_index = 'medicines_development'
-    when 'staging'
-      medicines_index = 'medicines_staging'
-    when 'production'
-      medicines_index = 'medicines_production'
-    end
-    url = "http://localhost:9200/#{medicines_index}/_search"
+  def get_medicines(i, params)
+    url = "http://localhost:9200/#{i}/_search"
 
     if params[:name]
-      data = '{"query": {  "match": {  "name": "' + params[:name] + '"  }  }  }'
+      data = '{
+                "query": {
+                  "match": {
+                    "name": "' + params[:name] + '"
+                  }
+                }
+              }'
     else
       data = nil
     end
