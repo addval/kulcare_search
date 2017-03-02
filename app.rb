@@ -1,5 +1,6 @@
 require 'sinatra'
 require 'elasticsearch'
+require 'json'
 require 'byebug'
 
 class KulcareSearch < Sinatra::Base
@@ -10,14 +11,17 @@ class KulcareSearch < Sinatra::Base
   end
 
   get '/medicines_development' do
+    content_type :json
     get_medicines('medicines_development', params)
   end
 
   get '/medicines_staging' do
+    content_type :json
     get_medicines('medicines_staging', params)
   end
 
   get '/medicines' do
+    content_type :json
     get_medicines('medicines_production', params)
   end
 
