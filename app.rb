@@ -88,7 +88,7 @@ class KulcareSearch < Sinatra::Base
     page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
 
     # Sort filters
-    sort_filter = sort_filter(params[:sort_order], params[:sort_by])
+    sort_filter = medicines_sort_filter(params[:sort_order], params[:sort_by])
 
     search_query =  {
                       query: {
@@ -110,19 +110,19 @@ class KulcareSearch < Sinatra::Base
     results["hits"].to_json
   end
 
-  # def medicines_sort_filter(sort_order, sort_by)
-  #   sort_filter = []
-  #   sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
-  #   sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+  def medicines_sort_filter(sort_order, sort_by)
+    sort_filter = []
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
-  #   case sort_by
-  #   when 'id'
-  #     sort_filter.push(id: { order: sort_order })
-  #   when 'name'
-  #     sort_filter.push(name: { order: sort_order })
-  #   end
-  #   sort_filter
-  # end
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
+    end
+    sort_filter
+  end
 
   # Get Doctors
   def get_doctors(i, params)
