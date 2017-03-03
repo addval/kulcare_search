@@ -12,10 +12,10 @@ Kulcare Search Queries
 + Parameters
     + id (string) - ID
     + name (string) - Name
-    + page (string) - Page Number (default: 0)
-    + perpage (string) - Number of results per page (default: 10)
     + sort_by (string) - id/name (default: name)
     + sort_order (string) - asc/desc (default: asc)
+    + page (string) - Page Number (default: 0)
+    + perpage (string) - Number of results per page (default: 10)
 
 + Response 200 (application/json)
 
@@ -45,3 +45,61 @@ Kulcare Search Queries
                 }
             ]
         }
+        
+## Doctors [/doctors]
+
+### List Doctors [GET]
+
++ Parameters
+    + id (optional, integer) - doctor id
+    + name (optional, string) - doctor name
+    + main_speciality (optional, string) - main speciality
+    + city (optional, string) - city
+    + visiting_charges_min (optional, integer) - minimum visiting charges
+    + visiting_charges_max (optional, integer) - maximum visiting charges. Do not send maximum value to search for exact charges
+    + geo_coordinates (optional, comma separated float values) - eg: "30,70". To search within a specified area
+    + geo_radius (optional, string) - To search within few kilometers
+    + case_file_review_availability (optional, integer) - 1 for true. 0 for false
+    + case_file_review_fees_min (optional, integer) - minimum case file review charges
+    + case_file_review_fees_max (optional, integer) - maximum case file review charges. Do not send maximum value to search for exact charges
+    + online_consultation_availability (optional, integer) - 1 for true. 0 for false
+    + online_consultation_fees_min (optional, integer) - minimum online consultation charges
+    + online_consultation_fees_max (optional, integer) - maximum online consultation charges. Do not send maximum value to search for exact charges
+    + sort_by (optional, string) - visiting charges/name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
+    + sort_order (optional, string) - asc/desc. Order is asc by default
+    + page (optional, integer) - Page no. for pagination
+    + perpage (optional, integer) - Number of records to be displayed per page
+
++ Response 200 (application/json)
+
+## Labs [/labs]
+
+### List Labs [GET]
+
++ Parameters
+    + id (optional, integer) ... lab id
+    + name (optional, string) ... lab name
+    + sort_by (optional, string) ... name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
+    + sort_order (optional, string) ... asc/desc. Order is asc by default
+    + geo_coordinates (optional, comma separated float values) ... eg: "30,70". To search within a specified area
+    + geo_radius (optional, string) ... To search within few kilometers
+    + page (optional, integer) ... Page no. for pagination
+    + perpage (optional, integer) ... Number of records to be displayed per page
+
++ Response 200 (application/json)
+
+## Pharmacies [/pharmacies]
+
+### List Pharmacies [GET]
+
++ Parameters
+    + id (optional, integer) ... lab id
+    + name (optional, string) ... lab name
+    + sort_by (optional, string) ... name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
+    + sort_order (optional, string) ... asc/desc. Order is asc by default
+    + geo_coordinates (optional, comma separated float values) ... eg: "30,70". To search within a specified area
+    + geo_radius (optional, string) ... To search within few kilometers
+    + page (optional, integer) ... Page no. for pagination
+    + perpage (optional, integer) ... Number of records to be displayed per page
+
++ Response 200 (application/json)
