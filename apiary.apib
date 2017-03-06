@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: http://search.kulcare.com/
+HOST: https://search.kulcare.com
 
 # Kulcare Search
 
@@ -72,6 +72,107 @@ Kulcare Search Queries
 
 + Response 200 (application/json)
 
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "doctors_production",
+                    "_type": "doctor",
+                    "_id": "46",
+                    "_score": null,
+                    "_source": {
+                    "id": 46,
+                    "gender": "Male",
+                    "bio": "",
+                    "photo_attachment": "",
+                    "name": "Govind Jindal",
+                    "objectID": 46,
+                    "user_account_id": null,
+                    "experience": "12",
+                    "speciality": "Dentist",
+                    "doctor_location_id": 75,
+                    "location_id": 75,
+                    "visiting_charges": 200,
+                    "visiting_charges_available": true,
+                    "location": "32 Smilez Dental Clinic and Implant Center",
+                    "address_line_1": "Sco 373, 1st Floor",
+                    "address_line_2": "Sector 32",
+                    "city": "Chandigarh",
+                    "state": "Chandigarh",
+                    "country": "IN",
+                    "zipcode": "160047",
+                    "email": "",
+                    "phone_number": "9814680820",
+                    "timings": [
+                        {
+                            "days": [
+                                "Mon-Sun"
+                            ],
+                            "time": [
+                                {
+                                    "id": 143,
+                                    "start_time": "04:00 pm",
+                                    "end_time": "09:00 pm"
+                                },
+                                {
+                                    "id": 142,
+                                    "start_time": "09:00 am",
+                                    "end_time": "02:00 pm"
+                                }
+                            ]
+                        }
+                    ],
+                    "other_specialities": [
+                        "Dentist "
+                    ],
+                    "education": [
+                        {
+                            "id": 154,
+                            "from_year": null,
+                            "to_year": null,
+                            "education_id": null,
+                            "education_name": "MDS",
+                            "education_institute_id": null,
+                            "education_institute_name": null
+                        },
+                        {
+                            "id": 153,
+                            "from_year": null,
+                            "to_year": null,
+                            "education_id": null,
+                            "education_name": "BDS",
+                            "education_institute_id": null,
+                            "education_institute_name": null
+                        }
+                    ],
+                    "awards": [],
+                    "consultation_profile": {},
+                    "online_consultation_schedules": [],
+                    "consolidated_feedback": {
+                        "average_rating": 0.0,
+                        "star_count_1": 0,
+                        "star_count_2": 0,
+                        "star_count_3": 0,
+                        "star_count_4": 0,
+                        "star_count_5": 0
+                    },
+                    "location_coordinates": {
+                        "lat": "30.709056",
+                        "lon": "76.774414"
+                    },
+                    "_geoloc": {
+                        "lat": 30.709056,
+                        "lng": 76.774414
+                    }
+                },
+                "sort": [
+                    "govind"
+                ]
+            }
+            ]
+        }
+
 ## Labs [/labs]
 
 ### List Labs [GET]
@@ -88,6 +189,56 @@ Kulcare Search Queries
 
 + Response 200 (application/json)
 
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "labs_production",
+                    "_type": "lab",
+                    "_id": "100",
+                    "_score": null,
+                    "_source": {
+                        "id": 100,
+                        "photo_attachment": null,
+                        "objectID": 100,
+                        "user_account_id": null,
+                        "name": "Trilok Diagnostic And Medical Centre",
+                        "summary": null,
+                        "location_id": 198543,
+                        "address_line_1": "G 166, New Seelampur",
+                        "address_line_2": null,
+                        "city": "Delhi",
+                        "state": "Delhi",
+                        "country": "IN",
+                        "zipcode": "110053",
+                        "email": null,
+                        "phone_number": "01166740802,9871095120",
+                        "location_schedule": [],
+                        "lab_tests": [
+                            {
+                                "id": 5274,
+                                "price": 80.0,
+                                "basic_lab_test_id": 1728,
+                                "name": "Widal Test"
+                            }
+                        ],
+                        "location_coordinates": {
+                            "lat": "28.6754755",
+                            "lon": "77.2678137"
+                        },
+                        "_geoloc": {
+                            "lat": 28.6754755,
+                            "lng": 77.2678137
+                        }
+                    },
+                    "sort": [
+                        "and"
+                    ]
+                }
+            ]
+        }
+
 ## Pharmacies [/pharmacies]
 
 ### List Pharmacies [GET]
@@ -103,3 +254,48 @@ Kulcare Search Queries
     + perpage (optional, integer) ... Number of records to be displayed per page
 
 + Response 200 (application/json)
+
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "pharmacies_production",
+                    "_type": "pharmacy",
+                    "_id": "46",
+                    "_score": null,
+                    "_source": {
+                        "id": 46,
+                        "photo_attachment": null,
+                        "objectID": 46,
+                        "user_account_id": null,
+                        "name": "Mohit International",
+                        "summary": null,
+                        "location_id": 198671,
+                        "address_line_1": "Panchkula",
+                        "address_line_2": null,
+                        "city": "Chandigarh",
+                        "state": "Chandigarh",
+                        "country": "IN",
+                        "zipcode": "134109",
+                        "email": null,
+                        "phone_number": "01722563119,9815976119",
+                        "location_schedule": [],
+                        "open_all_time": false,
+                        "home_delivery_status": false,
+                        "home_delivery_radius": 0.0,
+                        "location_coordinates": {
+                            "lat": "30.7333148",
+                            "lon": "76.7794179"
+                        },
+                        "_geoloc": {
+                            "lat": 30.7333148,
+                            "lng": 76.7794179
+                        }
+                    },
+                    "sort": [
+                        "international"
+                    ]
+                }
+            ]
+        }
