@@ -1,10 +1,19 @@
 require 'sinatra'
+require 'sinatra/cross_origin'
 require 'elasticsearch'
 require 'json'
 require 'byebug'
 
 class KulcareSearch < Sinatra::Base
   set :bind, '0.0.0.0'
+
+  configure do
+    enable :cross_origin
+  end
+
+  before do
+    response.headers['Access-Control-Allow-Origin'] = '*'
+  end
 
   get '/' do
     'Welcome to Kulcare Search !'
@@ -72,6 +81,13 @@ class KulcareSearch < Sinatra::Base
   get '/pharmacies' do
     content_type :json
     get_pharmacies('pharmacies_production', params)
+  end
+
+  options "*" do
+    response.headers["Allow"] = "GET,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    200
   end
 
   private
