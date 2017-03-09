@@ -96,7 +96,14 @@ class KulcareSearch < Sinatra::Base
   def get_medicines(i, params)
     # Attribute Filters
     must_filter = []
-    must_filter.push(match: { id: params[:id] }) if params[:id]
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
 
     # Page filters
@@ -144,7 +151,14 @@ class KulcareSearch < Sinatra::Base
   def get_doctors(i, params)
     # Attribute filters
     must_filter = []
-    must_filter.push(match: { id: params[:id] }) if params[:id]
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
     must_filter.push(match: { speciality: params[:main_speciality] }) if params[:main_speciality]
     must_filter.push(match: { city: params[:city] }) if params[:city]
@@ -197,7 +211,14 @@ class KulcareSearch < Sinatra::Base
   def get_labs(i, params)
     # Attribute filters
     must_filter = []
-    must_filter.push(match: { id: params[:id] }) if params[:id]
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
@@ -233,7 +254,14 @@ class KulcareSearch < Sinatra::Base
   def get_pharmacies(i, params)
     # Attribute filters
     must_filter = []
-    must_filter.push(match: { id: params[:id] }) if params[:id]
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
