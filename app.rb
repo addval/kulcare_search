@@ -272,6 +272,7 @@ class KulcareSearch < Sinatra::Base
     end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
+    must_filter.push(term: { home_delivery_status: params[:home_delivery_status] }) if params[:home_delivery_status]
 
     # Page filters
     perpage = params[:perpage] ? params[:perpage].to_i : 10
