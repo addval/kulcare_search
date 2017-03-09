@@ -161,7 +161,14 @@ class KulcareSearch < Sinatra::Base
     end
     must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
     must_filter.push(match_phrase: { gender: params[:gender] }) if params[:gender]
-    must_filter.push(match: { speciality: params[:main_speciality] }) if params[:main_speciality]
+    if params[:main_speciality]
+      if params[:main_speciality].include? ','
+        main_specialities = params[:main_speciality].split(",").map { |s| s.to_s }
+        must_filter.push({ terms: { speciality: main_specialities }})
+      else
+        must_filter.push(match: { speciality: params[:main_speciality] })
+      end
+    end
     must_filter.push(match: { city: params[:city] }) if params[:city]
     must_filter.push(
       visiting_charges_filter(params[:visiting_charges_min], params[:visiting_charges_max])
