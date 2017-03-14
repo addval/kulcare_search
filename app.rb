@@ -172,7 +172,7 @@ class KulcareSearch < Sinatra::Base
     must_filter.push(match: { city: params[:city] }) if params[:city]
     must_filter.push(
       visiting_charges_filter(params[:visiting_charges_min], params[:visiting_charges_max])
-    ) if params[:visiting_charges_min]
+    ) if params[:visiting_charges_min] or params[:visiting_charges_max]
     must_filter.push(
       case_file_review_charges_filter(params[:case_file_review_fees_min], params[:case_file_review_fees_max])
     ) if params[:case_file_review_fees_min]
@@ -329,8 +329,22 @@ class KulcareSearch < Sinatra::Base
 
   # Create filter based on visiting charges
   def visiting_charges_filter(from_charge, to_charge)
-    if !to_charge
-      h = { match: { visiting_charges: from_charge }}
+    if from_charge and !to_charge
+      h = {
+        range: {
+          visiting_charges: {
+            gte: from_charge
+          }
+        }
+      }
+    elsif !from_charge and to_charge
+      h = {
+        range: {
+          visiting_charges: {
+            lte: to_charge
+          }
+        }
+      }
     else
       h = {
         range: {
