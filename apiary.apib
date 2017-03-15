@@ -10,8 +10,8 @@ Kulcare Search Queries
 ### List Medicines [GET]
 
 + Parameters
-    + id (string) - ID
-    + name (string) - Name
+    + id (string) - id or comma separated ids 
+    + name (string) - name
     + sort_by (string) - id/name (default: name)
     + sort_order (string) - asc/desc (default: asc)
     + page (string) - Page Number (default: 0)
@@ -51,9 +51,10 @@ Kulcare Search Queries
 ### List Doctors [GET]
 
 + Parameters
-    + id (optional, integer) - doctor id
+    + id (optional, integer) - doctor id or comma separated ids 
     + name (optional, string) - doctor name
-    + main_speciality (optional, string) - main speciality
+    + gender (optional, string) - Male/Female
+    + main_speciality (optional, string) - main speciality or comma separated specialities
     + city (optional, string) - city
     + visiting_charges_min (optional, integer) - minimum visiting charges
     + visiting_charges_max (optional, integer) - maximum visiting charges. Do not send maximum value to search for exact charges
@@ -178,7 +179,7 @@ Kulcare Search Queries
 ### List Labs [GET]
 
 + Parameters
-    + id (optional, integer) ... lab id
+    + id (optional, integer) ... lab id or comma separated ids 
     + name (optional, string) ... lab name
     + sort_by (optional, string) ... name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
     + sort_order (optional, string) ... asc/desc. Order is asc by default
@@ -244,8 +245,9 @@ Kulcare Search Queries
 ### List Pharmacies [GET]
 
 + Parameters
-    + id (optional, integer) ... lab id
+    + id (optional, integer) ... lab id or comma separated ids 
     + name (optional, string) ... lab name
+    + home_delivery_status (optional, boolean) ... true/false
     + sort_by (optional, string) ... name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
     + sort_order (optional, string) ... asc/desc. Order is asc by default
     + geo_coordinates (optional, comma separated float values) ... eg: "30,70". To search within a specified area
