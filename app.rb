@@ -159,7 +159,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
-    must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
+    must_filter.push(multi_match: { query: params[:name], fields: ["name", "speciality"] }) if params[:name]
     must_filter.push(match_phrase: { gender: params[:gender] }) if params[:gender]
     if params[:main_speciality]
       if params[:main_speciality].include? ','
