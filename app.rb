@@ -307,7 +307,7 @@ class KulcareSearch < Sinatra::Base
   # -----------------------------------
   def sort_filter(sort_order, sort_by, geo_coordinates)
     sort_filter = []
-    sort_by = 'name' if !sort_by || !%w(name visiting_charges geolocation).include?(sort_by.to_s)
+    sort_by = 'name' if !sort_by || !%w(name visiting_charges geolocation case_file_review_fees online_consultation_fees).include?(sort_by.to_s)
     sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
     case sort_by
@@ -323,6 +323,10 @@ class KulcareSearch < Sinatra::Base
           unit: "km"
         }
       })
+    when 'case_file_review_fees'
+      sort_filter.push("consultation_profile.case_file_review_fees": {order: sort_order})
+    when 'online_consultation_fees'
+      sort_filter.push("consultation_profile.online_consultation_fees": {order: sort_order})
     end
     sort_filter
   end
