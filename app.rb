@@ -160,6 +160,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+    must_filter.push(term: { url: params[:url] }) if params[:url]
     must_filter.push(multi_match:
                       {
                         query: params[:name],
@@ -237,6 +238,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+    must_filter.push(term: { url: params[:url] }) if params[:url]
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
@@ -280,6 +282,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+    must_filter.push(term: { url: params[:url] }) if params[:url]
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
     must_filter.push(term: { home_delivery_status: params[:home_delivery_status] }) if params[:home_delivery_status]
