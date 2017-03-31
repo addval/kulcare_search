@@ -104,7 +104,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
-    must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
 
     # Page filters
     perpage = params[:perpage] ? params[:perpage].to_i : 10
@@ -151,6 +151,7 @@ class KulcareSearch < Sinatra::Base
   def get_doctors(i, params)
     # Attribute filters
     must_filter = []
+    should_filter = []
     if params[:id]
       if params[:id].include? ','
         ids = params[:id].split(",").map { |s| s.to_i }
@@ -159,14 +160,22 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
-    must_filter.push(multi_match: { query: params[:name], fields: ["name", "speciality"] }) if params[:name]
+    must_filter.push(multi_match:
+                      {
+                        query: params[:name],
+                        type: "phrase_prefix",
+                        fields: ["name", "speciality"]
+                      }
+                    ) if params[:name]
     must_filter.push(match_phrase: { gender: params[:gender] }) if params[:gender]
     if params[:main_speciality]
       if params[:main_speciality].include? ','
         main_specialities = params[:main_speciality].split(",").map { |s| s.to_s }
-        must_filter.push({ terms: { speciality: main_specialities }})
+        main_specialities.each do |spc|
+          should_filter.push(match_phrase_prefix: { speciality: spc })
+        end
       else
-        must_filter.push(match: { speciality: params[:main_speciality] })
+        must_filter.push(match_phrase_prefix: { speciality: params[:main_speciality] })
       end
     end
     must_filter.push(match: { city: params[:city] }) if params[:city]
@@ -200,7 +209,8 @@ class KulcareSearch < Sinatra::Base
                         filtered: {
                           filter: {
                             bool: {
-                              must: must_filter
+                              must: must_filter,
+                              should: should_filter
                             }
                           }
                         }
@@ -227,7 +237,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
-    must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
     # Page filters
@@ -270,7 +280,7 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
-    must_filter.push(match_phrase: { name: params[:name] }) if params[:name]
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
     must_filter.push(term: { home_delivery_status: params[:home_delivery_status] }) if params[:home_delivery_status]
 
@@ -406,4 +416,5 @@ class KulcareSearch < Sinatra::Base
     }
     h
   end
+
 end
