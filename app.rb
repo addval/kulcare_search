@@ -329,9 +329,13 @@ class KulcareSearch < Sinatra::Base
     when 'name'
       sort_filter.push(name: {order: sort_order})
     when 'geolocation'
+      gc = geo_coordinates.split(',').map(&:to_f)
       sort_filter.push({
         _geo_distance: {
-          location_coordinates: geo_coordinates.split(',').map(&:to_i),
+          location_coordinates: {
+            lat: gc[0],
+            lon: gc[1]
+          },
           order: sort_order,
           unit: "km"
         }
