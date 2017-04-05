@@ -7,6 +7,7 @@ require 'byebug'
 class KulcareSearch < Sinatra::Base
   set :bind, '0.0.0.0'
 
+  # CORS Configuration
   configure do
     enable :cross_origin
   end
@@ -15,6 +16,7 @@ class KulcareSearch < Sinatra::Base
     response.headers['Access-Control-Allow-Origin'] = '*'
   end
 
+  # Default home page
   get '/' do
     'Welcome to Kulcare Search !'
   end
@@ -83,6 +85,7 @@ class KulcareSearch < Sinatra::Base
     get_pharmacies('pharmacies_production', params)
   end
 
+  # CORS Configuration
   options "*" do
     response.headers["Allow"] = "GET,OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Authorization, Content-Type, Accept, X-User-Email, X-Auth-Token"
@@ -96,6 +99,8 @@ class KulcareSearch < Sinatra::Base
   def get_medicines(i, params)
     # Attribute Filters
     must_filter = []
+
+    # Search by single or multiple ids (comma separated)
     if params[:id]
       if params[:id].include? ','
         ids = params[:id].split(",").map { |s| s.to_i }
@@ -104,6 +109,8 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+
+    # Search by name (autocomplete)
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
 
     # Page filters
@@ -113,6 +120,7 @@ class KulcareSearch < Sinatra::Base
     # Sort filters
     sort_filter = medicines_sort_filter(params[:sort_order], params[:sort_by])
 
+    # Elasticsearch DSL Query
     search_query =  {
                       query: {
                         filtered: {
@@ -133,8 +141,10 @@ class KulcareSearch < Sinatra::Base
     results["hits"].to_json
   end
 
+  # Medicines sort filter
   def medicines_sort_filter(sort_order, sort_by)
     sort_filter = []
+    # Default: sort by name ASC
     sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
     sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
@@ -152,6 +162,8 @@ class KulcareSearch < Sinatra::Base
     # Attribute filters
     must_filter = []
     should_filter = []
+
+    # Search by single or multiple ids (comma separated)
     if params[:id]
       if params[:id].include? ','
         ids = params[:id].split(",").map { |s| s.to_i }
@@ -160,7 +172,11 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+
+    # Search by public URL
     must_filter.push(term: { url: params[:url] }) if params[:url]
+
+    # Search by name (autocomplete) or speciality
     must_filter.push(multi_match:
                       {
                         query: params[:name],
@@ -168,7 +184,11 @@ class KulcareSearch < Sinatra::Base
                         fields: ["name", "speciality"]
                       }
                     ) if params[:name]
+
+    # Search by gender
     must_filter.push(match_phrase: { gender: params[:gender] }) if params[:gender]
+
+    # Search by single or multiple specialities (comma separated)
     if params[:main_speciality]
       if params[:main_speciality].include? ','
         main_specialities = params[:main_speciality].split(",").map { |s| s.to_s }
@@ -179,22 +199,32 @@ class KulcareSearch < Sinatra::Base
         must_filter.push(match_phrase_prefix: { speciality: params[:main_speciality] })
       end
     end
+
+    # Search by city
     must_filter.push(match: { city: params[:city] }) if params[:city]
+
+    # Search by visiting charges range
     must_filter.push(
       visiting_charges_filter(params[:visiting_charges_min], params[:visiting_charges_max])
     ) if params[:visiting_charges_min] or params[:visiting_charges_max]
+
+    # Search by case file review fees range and availability
     must_filter.push(
       case_file_review_charges_filter(params[:case_file_review_fees_min], params[:case_file_review_fees_max])
     ) if params[:case_file_review_fees_min]
     must_filter.push(
+      term: { "consultation_profile.case_file_review_availability": params[:case_file_review_availability] }
+    ) if params[:case_file_review_availability]
+
+    # Search by online consultation fees range and availability
+    must_filter.push(
       online_consult_charges_filter(params[:online_consultation_fees_min], params[:online_consultation_fees_max])
     ) if params[:online_consultation_fees_min]
     must_filter.push(
-      term: { "consultation_profile.case_file_review_availability": params[:case_file_review_availability] }
-    ) if params[:case_file_review_availability]
-    must_filter.push(
       term: { "consultation_profile.online_consultation_availability": params[:online_consultation_availability] }
     ) if params[:online_consultation_availability]
+
+    # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
     # Page filters
@@ -204,7 +234,7 @@ class KulcareSearch < Sinatra::Base
     # Sort filters
     sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
 
-    # Query based on multiple conditions
+    # Elasticsearch DSL Query
     search_query =  {
                       query: {
                         filtered: {
@@ -230,6 +260,8 @@ class KulcareSearch < Sinatra::Base
   def get_labs(i, params)
     # Attribute filters
     must_filter = []
+
+    # Search by single or multiple ids (comma separated)
     if params[:id]
       if params[:id].include? ','
         ids = params[:id].split(",").map { |s| s.to_i }
@@ -238,8 +270,14 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+
+    # Search by public URL
     must_filter.push(term: { url: params[:url] }) if params[:url]
+
+    # Search by name (autocomplete)
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
     # Page filters
@@ -249,7 +287,7 @@ class KulcareSearch < Sinatra::Base
     # Sort filters
     sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
 
-    # Query based on multiple conditions
+    # Elasticsearch DSL Query
     search_query =  {
                       query: {
                         filtered: {
@@ -274,6 +312,8 @@ class KulcareSearch < Sinatra::Base
   def get_pharmacies(i, params)
     # Attribute filters
     must_filter = []
+
+    # Search by single or multiple ids (comma separated)
     if params[:id]
       if params[:id].include? ','
         ids = params[:id].split(",").map { |s| s.to_i }
@@ -282,9 +322,17 @@ class KulcareSearch < Sinatra::Base
         must_filter.push({term: { id: params[:id] }})
       end
     end
+
+    # Search by public URL
     must_filter.push(term: { url: params[:url] }) if params[:url]
+
+    # Search by name (autocomplete)
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
+
+    # Search by home delivery status
     must_filter.push(term: { home_delivery_status: params[:home_delivery_status] }) if params[:home_delivery_status]
 
     # Page filters
@@ -294,7 +342,7 @@ class KulcareSearch < Sinatra::Base
     # Sort filters
     sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
 
-    # Query based on multiple conditions
+    # Elasticsearch DSL Query
     search_query =  {
                       query: {
                         filtered: {
@@ -318,8 +366,10 @@ class KulcareSearch < Sinatra::Base
 
   # Filters
   # -----------------------------------
+  # Sort filter for provider search
   def sort_filter(sort_order, sort_by, geo_coordinates)
     sort_filter = []
+    # Default: sort by name ASC
     sort_by = 'name' if !sort_by || !%w(name visiting_charges geolocation case_file_review_fees online_consultation_fees).include?(sort_by.to_s)
     sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
@@ -348,7 +398,7 @@ class KulcareSearch < Sinatra::Base
     sort_filter
   end
 
-  # Create filter based on visiting charges
+  # Filter based on visiting charges
   def visiting_charges_filter(from_charge, to_charge)
     if from_charge and !to_charge
       h = {
@@ -379,7 +429,7 @@ class KulcareSearch < Sinatra::Base
     return h
   end
 
-  # Create filter based on visiting charges
+  # Filter based on case file review fees
   def case_file_review_charges_filter(from_charge, to_charge)
     if !to_charge
       h = { match: { "consultation_profile.case_file_review_fees": from_charge }}
@@ -396,7 +446,7 @@ class KulcareSearch < Sinatra::Base
     return h
   end
 
-  # Create filter based on visiting charges
+  # Filter based on online consultation fees
   def online_consult_charges_filter(from_charge, to_charge)
     if !to_charge
       h = { match: { "consultation_profile.online_consultation_fees": from_charge }}
@@ -413,6 +463,7 @@ class KulcareSearch < Sinatra::Base
     return h
   end
 
+  # Filter based on Geo Coordinates and Geo Radius
   def geolocation_filter(geo_coordinates, geo_radius)
     geo_radius = "100" if !geo_radius
     h = {
