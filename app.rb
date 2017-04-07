@@ -227,31 +227,33 @@ class KulcareSearch < Sinatra::Base
     # Doctor Availability Filters
     utc_timings_must_filter = []
 
-    # Open Now Filter
-    if params[:open_now] and params[:open_now] == "true"
-      utc_timings_must_filter += open_now_filter
-      current_day = Time.now.utc.strftime('%a')
-      params[:open_on_days] = current_day
-    end
+    if params[:open_now] or params[:open_on_days]
+      # Open Now Filter
+      if params[:open_now] and params[:open_now] == "true"
+        utc_timings_must_filter += open_now_filter
+        current_day = Time.now.utc.strftime('%a')
+        params[:open_on_days] = current_day
+      end
 
-    # Open on days filter
-    if params[:open_on_days]
-      open_on_days = params[:open_on_days].split(",")
-      utc_timings_must_filter.push(terms: { "utc_timings.day_of_week": open_on_days })
-    end
+      # Open on days filter
+      if params[:open_on_days]
+        open_on_days = params[:open_on_days].split(",")
+        utc_timings_must_filter.push(terms: { "utc_timings.day_of_week": open_on_days })
+      end
 
-    utc_timings_filter = {
-      nested: {
-        path: "utc_timings",
-        query: {
-          bool: {
-            must: utc_timings_must_filter
+      utc_timings_filter = {
+        nested: {
+          path: "utc_timings",
+          query: {
+            bool: {
+              must: utc_timings_must_filter
+            }
           }
         }
       }
-    }
 
-    must_filter.push utc_timings_filter
+      must_filter.push utc_timings_filter
+    end
 
     # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
