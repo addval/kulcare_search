@@ -37,6 +37,22 @@ class KulcareSearch < Sinatra::Base
     get_medicines('medicines_production', params)
   end
 
+  # Health Problems Search
+  get '/health_problems_development' do
+    content_type :json
+    get_health_problems('health_problems_development', params)
+  end
+
+  get '/health_problems_staging' do
+    content_type :json
+    get_health_problems('health_problems_staging', params)
+  end
+
+  get '/health_problems' do
+    content_type :json
+    get_health_problems('health_problems_production', params)
+  end
+
   # Doctors Search
   get '/doctors_development' do
     content_type :json
@@ -143,6 +159,68 @@ class KulcareSearch < Sinatra::Base
 
   # Medicines sort filter
   def medicines_sort_filter(sort_order, sort_by)
+    sort_filter = []
+    # Default: sort by name ASC
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
+    end
+    sort_filter
+  end
+
+  # Get Health Problems
+  def get_health_problems(i, params)
+    # Attribute Filters
+    must_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = health_problems_sort_filter(params[:sort_order], params[:sort_by])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        filtered: {
+                          filter: {
+                            bool: {
+                              must: must_filter
+                            }
+                          }
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
+  # Medicines sort filter
+  def health_problems_sort_filter(sort_order, sort_by)
     sort_filter = []
     # Default: sort by name ASC
     sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
