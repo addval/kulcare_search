@@ -139,12 +139,8 @@ class KulcareSearch < Sinatra::Base
     # Elasticsearch DSL Query
     search_query =  {
                       query: {
-                        filtered: {
-                          filter: {
-                            bool: {
-                              must: must_filter
-                            }
-                          }
+                        bool: {
+                          must: must_filter
                         }
                       },
                       sort: sort_filter,
@@ -201,12 +197,8 @@ class KulcareSearch < Sinatra::Base
     # Elasticsearch DSL Query
     search_query =  {
                       query: {
-                        filtered: {
-                          filter: {
-                            bool: {
-                              must: must_filter
-                            }
-                          }
+                        bool: {
+                          must: must_filter
                         }
                       },
                       sort: sort_filter,
@@ -346,13 +338,9 @@ class KulcareSearch < Sinatra::Base
     # Elasticsearch DSL Query
     search_query =  {
                       query: {
-                        filtered: {
-                          filter: {
-                            bool: {
-                              must: must_filter,
-                              should: should_filter
-                            }
-                          }
+                        bool: {
+                          must: must_filter,
+                          should: should_filter
                         }
                       },
                       sort: sort_filter,
@@ -399,12 +387,8 @@ class KulcareSearch < Sinatra::Base
     # Elasticsearch DSL Query
     search_query =  {
                       query: {
-                        filtered: {
-                          filter: {
-                            bool: {
-                              must: must_filter
-                            }
-                          }
+                        bool: {
+                          must: must_filter
                         }
                       },
                       sort: sort_filter,
@@ -454,12 +438,8 @@ class KulcareSearch < Sinatra::Base
     # Elasticsearch DSL Query
     search_query =  {
                       query: {
-                        filtered: {
-                          filter: {
-                            bool: {
-                              must: must_filter
-                            }
-                          }
+                        bool: {
+                          must: must_filter
                         }
                       },
                       sort: sort_filter,
