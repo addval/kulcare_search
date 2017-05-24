@@ -255,6 +255,9 @@ class KulcareSearch < Sinatra::Base
                       }
                     ) if params[:name]
 
+    # Search by name only
+    must_filter.push(match_phrase_prefix: { name: params[:only_name] }) if params[:only_name]
+
     # Search by gender
     must_filter.push(match_phrase: { gender: params[:gender] }) if params[:gender]
 
