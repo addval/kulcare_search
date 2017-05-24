@@ -46,6 +46,40 @@ Kulcare Search Queries
             ]
         }
         
+## Health Problems [/health_problems]
+
+### List Health Problems [GET]
+
++ Parameters
+    + id (string) - id or comma separated ids 
+    + name (string) - name
+    + sort_by (string) - id/name (default: name)
+    + sort_order (string) - asc/desc (default: asc)
+    + page (string) - Page Number (default: 0)
+    + perpage (string) - Number of results per page (default: 10)
+
++ Response 200 (application/json)
+
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "health_problems_production",
+                    "_type": "health_problem",
+                    "_id": "1",
+                    "_score": null,
+                    "_source": {
+                        "id": 1,
+                        "name": "Abdominal Pain"
+                    },
+                    "sort": [
+                        "abdominal"
+                    ]
+                }
+            ]
+        }
+        
 ## Doctors [/doctors]
 
 ### List Doctors [GET]
