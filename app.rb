@@ -298,9 +298,9 @@ class KulcareSearch < Sinatra::Base
     ) if params[:online_consultation_availability]
 
     # Doctor Availability Filters
-    utc_timings_must_filter = []
-
     if params[:open_now] or params[:open_on_days]
+      utc_timings_must_filter = []
+
       # Open Now Filter
       if params[:open_now] and params[:open_now] == "true"
         utc_timings_must_filter += open_now_filter
@@ -326,6 +326,61 @@ class KulcareSearch < Sinatra::Base
       }
 
       must_filter.push utc_timings_filter
+    end
+
+    # Online Consultation Availability Filters - Next Available Online
+    if params[:next_available_online] and params[:next_available_online] == "true"
+      current_day = Time.now.utc.strftime('%a')
+      current_hour = Time.now.utc.strftime('%H').to_i
+
+      current_hour = 00 if current_hour == 23
+      start_hour = current_hour + 1
+
+      next_hour = start_hour
+      next_hour = 00 if next_hour == 23
+      next_hour = next_hour + 1
+
+      slots = []
+      slots[0] = Time.parse('2000-01-01 ' + start_hour.to_s + ':00:00 +0000').utc.iso8601
+      slots[1] = Time.parse('2000-01-01 ' + start_hour.to_s + ':30:00 +0000').utc.iso8601
+      slots[2] = Time.parse('2000-01-01 ' + next_hour.to_s + ':00:00 +0000').utc.iso8601
+      slots[3] = Time.parse('2000-01-01 ' + next_hour.to_s + ':30:00 +0000').utc.iso8601
+
+      days = []
+      4.times do |count|
+        if (count == 0 and start_hour == 0) or (count == 2 and next_hour == 0)
+          case current_day
+          when "Mon"
+            current_day = "Tue"
+          when "Tue"
+            current_day = "Wed"
+          when "Wed"
+            current_day = "Thu"
+          when "Thu"
+            current_day = "Fri"
+          when "Fri"
+            current_day = "Sat"
+          when "Sat"
+            current_day = "Sun"
+          when "Sun"
+            current_day = "Mon"
+          end
+        end
+        days[count] = current_day
+
+        nested_filter = {
+          nested: {
+            path: "online_utc_consultation_schedules",
+            query: {
+              bool: {
+                must: available_now_filter(days[count], slots[count])
+              }
+            }
+          }
+        }
+
+        should_filter.push nested_filter
+      end
     end
 
     # Geo Location Search
@@ -580,6 +635,29 @@ class KulcareSearch < Sinatra::Base
       {
         range: {
           "utc_timings.end_time": { "gte": current_time }
+        }
+      }
+    ]
+  end
+
+  # Available Now filter
+  def available_now_filter(day, slot)
+    available_on_days = day.split(",")
+
+    [
+      {
+        terms: {
+          "online_utc_consultation_schedules.day_of_week": available_on_days
+        }
+      },
+      {
+        range: {
+          "online_utc_consultation_schedules.start_time": { "lte": slot }
+        }
+      },
+      {
+        range: {
+          "online_utc_consultation_schedules.end_time": { "gte": slot }
         }
       }
     ]
