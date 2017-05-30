@@ -397,8 +397,18 @@ class KulcareSearch < Sinatra::Base
     search_query =  {
                       query: {
                         bool: {
-                          must: must_filter,
-                          should: should_filter
+                          must: [
+                            {
+                              bool: {
+                                must: must_filter
+                              }
+                            },
+                            {
+                              bool: {
+                                should: should_filter
+                              }
+                            }
+                          ]
                         }
                       },
                       sort: sort_filter,
