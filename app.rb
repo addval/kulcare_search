@@ -53,6 +53,22 @@ class KulcareSearch < Sinatra::Base
     get_health_problems('health_problems_production', params)
   end
 
+  # Basic Lab Tests Search
+  get '/basic_lab_tests_development' do
+    content_type :json
+    get_basic_lab_tests('basic_lab_tests_development', params)
+  end
+
+  get '/basic_lab_tests_staging' do
+    content_type :json
+    get_basic_lab_tests('basic_lab_tests_staging', params)
+  end
+
+  get '/basic_lab_tests' do
+    content_type :json
+    get_basic_lab_tests('basic_lab_tests_production', params)
+  end
+
   # Doctors Search
   get '/doctors_development' do
     content_type :json
@@ -211,8 +227,66 @@ class KulcareSearch < Sinatra::Base
     results["hits"].to_json
   end
 
-  # Medicines sort filter
+  # Health Problems sort filter
   def health_problems_sort_filter(sort_order, sort_by)
+    sort_filter = []
+    # Default: sort by name ASC
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
+    end
+    sort_filter
+  end
+
+  # Get basic lab tests
+  def get_basic_lab_tests(i, params)
+    # Attribute Filters
+    must_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = basic_lab_tests_sort_filter(params[:sort_order], params[:sort_by])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        bool: {
+                          must: must_filter
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
+  # Basic Lab Tests sort filter
+  def basic_lab_tests_sort_filter(sort_order, sort_by)
     sort_filter = []
     # Default: sort by name ASC
     sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
