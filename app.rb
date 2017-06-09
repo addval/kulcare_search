@@ -529,6 +529,10 @@ class KulcareSearch < Sinatra::Base
         }
       }
       must_filter.push(nested_filter)
+      sort_filter = lab_sort_by_test_price_filter(params[:sort_order], params[:basic_lab_test_id])
+    else
+      # Sort filters
+      sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
     end
 
     # Geo Location Search
@@ -537,9 +541,6 @@ class KulcareSearch < Sinatra::Base
     # Page filters
     perpage = params[:perpage] ? params[:perpage].to_i : 10
     page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
-
-    # Sort filters
-    sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
 
     # Elasticsearch DSL Query
     search_query =  {
@@ -641,6 +642,24 @@ class KulcareSearch < Sinatra::Base
     when 'online_consultation_fees'
       sort_filter.push("consultation_profile.online_consultation_fees": {order: sort_order})
     end
+    sort_filter
+  end
+
+  def lab_sort_by_test_price_filter(sort_order, basic_lab_test_id)
+    sort_filter = []
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+
+    sort_filter.push({
+      "lab_tests.price": {
+        "order": sort_order,
+        "nested_path": "lab_tests",
+        "nested_filter": {
+          "term": {
+            "lab_tests.basic_lab_test_id": basic_lab_test_id
+          }
+        }
+      }
+    })
     sort_filter
   end
 
