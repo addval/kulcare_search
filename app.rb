@@ -516,6 +516,21 @@ class KulcareSearch < Sinatra::Base
     # Search by name (autocomplete)
     must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
 
+    # Search by basic_lab_test_id
+    if params[:basic_lab_test_id]
+      nested_filter = {
+        nested: {
+          path: "lab_tests",
+          query: {
+            bool: {
+              must: basic_lab_test_filter(params[:basic_lab_test_id])
+            }
+          }
+        }
+      }
+      must_filter.push(nested_filter)
+    end
+
     # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
 
@@ -745,6 +760,10 @@ class KulcareSearch < Sinatra::Base
         }
       }
     ]
+  end
+
+  def basic_lab_test_filter(basic_lab_test_id)
+    { term: { "lab_tests.basic_lab_test_id": basic_lab_test_id } }
   end
 end
 
