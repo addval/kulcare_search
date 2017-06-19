@@ -211,6 +211,41 @@ Kulcare Search Queries
             }
             ]
         }
+        
+## Basic Lab Tests [/basic_lab_tests]
+
+### List Basic Lab Tests [GET]
+
++ Parameters
+    + id (string) - id or comma separated ids 
+    + name (string) - name
+    + sort_by (string) - id/name (default: name)
+    + sort_order (string) - asc/desc (default: asc)
+    + page (string) - Page Number (default: 0)
+    + perpage (string) - Number of results per page (default: 10)
+    + featured (boolean) - true/false
+
++ Response 200 (application/json)
+
+        {
+            "total": 1,
+            "max_score": null,
+            "hits": [
+                {
+                    "_index": "basic_lab_tests_development",
+                    "_type": "basic_lab_test",
+                    "_id": "204",
+                    "_score": null,
+                      "_source": {
+                        "id": 204,
+                        "name": "X-Ray"
+                    },
+                    "sort": [
+                        "x"
+                    ]
+                }
+            ]
+        }
 
 ## Labs [/labs]
 
@@ -219,6 +254,7 @@ Kulcare Search Queries
 + Parameters
     + id (optional, integer) ... lab id or comma separated ids 
     + name (optional, string) ... lab name
+    + basic_lab_test_id (optional, string) ... basic lab test id
     + sort_by (optional, string) ... name/geolocation. It is name by default. To sort by geo location, send geo_coordinates as well
     + sort_order (optional, string) ... asc/desc. Order is asc by default
     + geo_coordinates (optional, comma separated float values) ... eg: "30,70". To search within a specified area
