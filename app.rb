@@ -249,7 +249,7 @@ class KulcareSearch < Sinatra::Base
     must_filter = []
 
     if params[:featured]
-      params[:id] = '1650,1068,301'
+      params[:id] = '1545,1068,1698,387,784,1017,1073'
     end
 
     # Search by single or multiple ids (comma separated)
