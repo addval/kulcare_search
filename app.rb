@@ -2,7 +2,10 @@ require 'sinatra'
 require 'sinatra/cross_origin'
 require 'elasticsearch'
 require 'json'
-require 'byebug'
+# require 'byebug'
+
+configure { set :server, :puma }
+
 
 class KulcareSearch < Sinatra::Base
   set :bind, '0.0.0.0'

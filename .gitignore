@@ -1,3 +1,7 @@
 .byebug*
 .DS_Store
 .ruby-version
+/TAGS
+log/*
+shared/pids/*
+shared/sockets/*
