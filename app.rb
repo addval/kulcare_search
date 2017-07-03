@@ -117,6 +117,22 @@ class KulcareSearch < Sinatra::Base
     get_pharmacies('pharmacies_production', params)
   end
 
+  # Hospitals Search
+  get '/hospitals_development' do
+    content_type :json
+    get_hospitals('hospitals_development', params)
+  end
+
+  get '/hospitals_staging' do
+    content_type :json
+    get_hospitals('hospitals_staging', params)
+  end
+
+  get '/hospitals' do
+    content_type :json
+    get_hospitals('hospitals_production', params)
+  end
+
   # Jobs Search
   get '/jobs_development' do
     content_type :json
@@ -630,6 +646,100 @@ class KulcareSearch < Sinatra::Base
     results["hits"].to_json
   end
 
+  # Get Hospitals
+  def get_hospitals(i, params)
+    # Attribute filters
+    must_filter = []
+    should_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by public URL
+    must_filter.push(term: { url: params[:url] }) if params[:url]
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Search by single or multiple specializations (comma separated)
+    if params[:main_specialization]
+      if params[:main_specialization].include? ','
+        main_specializations = params[:main_specialization].split(",").map { |s| s.to_s }
+        main_specializations.each do |spc|
+          should_filter.push(match_phrase_prefix: { specialization: spc })
+        end
+      else
+        must_filter.push(match_phrase_prefix: { specialization: params[:main_specialization] })
+      end
+    end
+
+    # Hospital Availability Filters
+    if params[:open_now] or params[:open_on_days]
+      utc_timings_must_filter = []
+
+      # Open Now Filter
+      if params[:open_now] and params[:open_now] == "true"
+        utc_timings_must_filter += open_now_filter
+        current_day = Time.now.utc.strftime('%a')
+        params[:open_on_days] = current_day
+      end
+
+      # Open on days filter
+      if params[:open_on_days]
+        open_on_days = params[:open_on_days].split(",")
+        utc_timings_must_filter.push(terms: { "utc_timings.day_of_week": open_on_days })
+      end
+
+      utc_timings_filter = {
+        nested: {
+          path: "utc_timings",
+          query: {
+            bool: {
+              must: utc_timings_must_filter
+            }
+          }
+        }
+      }
+
+      must_filter.push utc_timings_filter
+    end
+
+    # Search by city
+    must_filter.push(match: { city: params[:city] }) if params[:city]
+
+    # Geo Location Search
+    must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = sort_filter(params[:sort_order], params[:sort_by], params[:geo_coordinates])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        bool: {
+                          must: must_filter
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
 
   # Filters
   # -----------------------------------
