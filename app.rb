@@ -136,6 +136,54 @@ class KulcareSearch < Sinatra::Base
     get_hospitals('hospitals_production', params)
   end
 
+  # Basic Hospital Facilities Search
+  get '/basic_facilities_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_facilities_development', params)
+  end
+
+  get '/basic_facilities_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_facilities_staging', params)
+  end
+
+  get '/basic_facilities' do
+    content_type :json
+    get_basic_hospitals_data('basic_facilities_production', params)
+  end
+
+  # Basic Hospital Specializations Search
+  get '/basic_specializations_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_specializations_development', params)
+  end
+
+  get '/basic_specializations_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_specializations_staging', params)
+  end
+
+  get '/basic_specializations' do
+    content_type :json
+    get_basic_hospitals_data('basic_specializations_production', params)
+  end
+
+  # Basic Hospital Accreditations Search
+  get '/basic_accreditations_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_accreditations_development', params)
+  end
+
+  get '/basic_accreditations_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_accreditations_staging', params)
+  end
+
+  get '/basic_accreditations' do
+    content_type :json
+    get_basic_hospitals_data('basic_accreditations_production', params)
+  end
+
   # Jobs Search
   get '/jobs_development' do
     content_type :json
@@ -744,6 +792,90 @@ class KulcareSearch < Sinatra::Base
     results["hits"].to_json
   end
 
+  # Get Basic Hospitals Data
+  def get_basic_hospitals_data(i, params)
+    # Attribute Filters
+    must_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = basic_hospitals_data_sort_filter(params[:sort_order], params[:sort_by])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        bool: {
+                          must: must_filter
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
+  # Get Jobs
+  def get_jobs(i, params)
+    # Attribute Filters
+    must_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = jobs_sort_filter(params[:sort_order], params[:sort_by])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        bool: {
+                          must: must_filter
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
   # Filters
   # -----------------------------------
   # Sort filter for provider search
@@ -918,46 +1050,19 @@ class KulcareSearch < Sinatra::Base
     { term: { "lab_tests.basic_lab_test_id": basic_lab_test_id } }
   end
 
-  # Get Jobs
-  def get_jobs(i, params)
-    # Attribute Filters
-    must_filter = []
+  def basic_hospitals_data_sort_filter(sort_order, sort_by)
+    sort_filter = []
+    # Default: sort by created_at ASC
+    sort_by = 'created_at' if !sort_by || !%w(id, created_at).include?(sort_by.to_s)
+    sort_order = 'desc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
-    # Search by single or multiple ids (comma separated)
-    if params[:id]
-      if params[:id].include? ','
-        ids = params[:id].split(",").map { |s| s.to_i }
-        must_filter.push({ terms: { id: ids }})
-      else
-        must_filter.push({term: { id: params[:id] }})
-      end
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'created_at'
+      sort_filter.push(created_at: { order: sort_order })
     end
-
-    # Search by name (autocomplete)
-    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
-
-    # Page filters
-    perpage = params[:perpage] ? params[:perpage].to_i : 10
-    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
-
-    # Sort filters
-    sort_filter = jobs_sort_filter(params[:sort_order], params[:sort_by])
-
-    # Elasticsearch DSL Query
-    search_query =  {
-                      query: {
-                        bool: {
-                          must: must_filter
-                        }
-                      },
-                      sort: sort_filter,
-                      from: page,
-                      size: perpage
-                    }
-
-    client = Elasticsearch::Client.new
-    results = client.search index: i, body: search_query
-    results["hits"].to_json
+    sort_filter
   end
 
   # Jobs sort filter
