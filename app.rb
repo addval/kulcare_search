@@ -1052,15 +1052,15 @@ class KulcareSearch < Sinatra::Base
 
   def basic_hospitals_data_sort_filter(sort_order, sort_by)
     sort_filter = []
-    # Default: sort by created_at ASC
-    sort_by = 'created_at' if !sort_by || !%w(id, created_at).include?(sort_by.to_s)
-    sort_order = 'desc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+    # Default: sort by name ASC
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
 
     case sort_by
     when 'id'
       sort_filter.push(id: { order: sort_order })
-    when 'created_at'
-      sort_filter.push(created_at: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
     end
     sort_filter
   end
