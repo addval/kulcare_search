@@ -247,7 +247,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -305,7 +305,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -367,7 +367,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -577,7 +577,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -641,7 +641,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -692,7 +692,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -787,7 +787,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -829,7 +829,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
@@ -871,7 +871,7 @@ class KulcareSearch < Sinatra::Base
                       size: perpage
                     }
 
-    client = Elasticsearch::Client.new
+    client = Elasticsearch::Client.new host: 'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
     results = client.search index: i, body: search_query
     results["hits"].to_json
   end
