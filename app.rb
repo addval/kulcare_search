@@ -40,6 +40,22 @@ class KulcareSearch < Sinatra::Base
     get_medicines('medicines_production', params)
   end
 
+  # Basic Specialities Search
+  get '/basic_specialities_development' do
+    content_type :json
+    get_basic_specialities('basic_specialities_development', params)
+  end
+
+  get '/basic_specialities_staging' do
+    content_type :json
+    get_basic_specialities('basic_specialities_staging', params)
+  end
+
+  get '/basic_specialities' do
+    content_type :json
+    get_basic_specialities('basic_specialities_production', params)
+  end
+
   # Health Problems Search
   get '/health_problems_development' do
     content_type :json
@@ -216,6 +232,21 @@ class KulcareSearch < Sinatra::Base
     get_basic_hospitals_data('basic_complaints_production', params)
   end
 
+  get '/basic_vitals_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_vitals_development', params)
+  end
+
+  get '/basic_vitals_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_vitals_staging', params)
+  end
+
+  get '/basic_vitals' do
+    content_type :json
+    get_basic_hospitals_data('basic_vitals_production', params)
+  end
+
   # Basic Practices Diagnoses Search
   get '/basic_diagnoses_development' do
     content_type :json
@@ -286,6 +317,64 @@ class KulcareSearch < Sinatra::Base
 
   # Medicines sort filter
   def medicines_sort_filter(sort_order, sort_by)
+    sort_filter = []
+    # Default: sort by name ASC
+    sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
+    sort_order = 'asc' if !sort_order || !%w(asc, desc).include?(sort_order.to_s)
+
+    case sort_by
+    when 'id'
+      sort_filter.push(id: { order: sort_order })
+    when 'name'
+      sort_filter.push(name: { order: sort_order })
+    end
+    sort_filter
+  end
+
+  # Get basic specialities
+  def get_basic_specialities(i, params)
+    # Attribute Filters
+    must_filter = []
+
+    # Search by single or multiple ids (comma separated)
+    if params[:id]
+      if params[:id].include? ','
+        ids = params[:id].split(",").map { |s| s.to_i }
+        must_filter.push({ terms: { id: ids }})
+      else
+        must_filter.push({term: { id: params[:id] }})
+      end
+    end
+
+    # Search by name (autocomplete)
+    must_filter.push(match_phrase_prefix: { name: params[:name] }) if params[:name]
+
+    # Page filters
+    perpage = params[:perpage] ? params[:perpage].to_i : 10
+    page = params[:page] ? ((params[:page].to_i - 1) * perpage.to_i) : 0
+
+    # Sort filters
+    sort_filter = basic_specialities_sort_filter(params[:sort_order], params[:sort_by])
+
+    # Elasticsearch DSL Query
+    search_query =  {
+                      query: {
+                        bool: {
+                          must: must_filter
+                        }
+                      },
+                      sort: sort_filter,
+                      from: page,
+                      size: perpage
+                    }
+
+    client = Elasticsearch::Client.new #host:'https://search-kulcare-search-a5gec72fgr3kghfjyvb3anac74.ap-southeast-1.es.amazonaws.com'
+    results = client.search index: i, body: search_query
+    results["hits"].to_json
+  end
+
+  # Basic Lab Tests sort filter
+  def basic_specialities_sort_filter(sort_order, sort_by)
     sort_filter = []
     # Default: sort by name ASC
     sort_by = 'name' if !sort_by || !%w(id, name).include?(sort_by.to_s)
@@ -656,6 +745,9 @@ class KulcareSearch < Sinatra::Base
 
     # Geo Location Search
     must_filter.push(geolocation_filter(params[:geo_coordinates], params[:geo_radius])) if params[:geo_coordinates]
+
+    # Search by open for orders status
+    must_filter.push(term: { open_for_orders: params[:open_for_orders] }) if params[:open_for_orders]
 
     # Page filters
     perpage = params[:perpage] ? params[:perpage].to_i : 10
