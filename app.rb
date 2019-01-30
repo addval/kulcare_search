@@ -120,6 +120,22 @@ class KulcareSearch < Sinatra::Base
     get_labs('labs_production', params)
   end
 
+  # Labs Search
+  get '/labs_profiles_development' do
+    content_type :json
+    get_labs('labs_profiles_development', params)
+  end
+
+  get '/labs_profiles_staging' do
+    content_type :json
+    get_labs('labs_profiles_staging', params)
+  end
+
+  get '/labs_profiles' do
+    content_type :json
+    get_labs('labs_profiles_production', params)
+  end
+
   # Pharmacies Search
   get '/pharmacies_development' do
     content_type :json
@@ -134,6 +150,22 @@ class KulcareSearch < Sinatra::Base
   get '/pharmacies' do
     content_type :json
     get_pharmacies('pharmacies_production', params)
+  end
+
+  # Pharmacies Search
+  get '/pharmacies_profiles_development' do
+    content_type :json
+    get_pharmacies('pharmacies_profiles_development', params)
+  end
+
+  get '/pharmacies_profiles_staging' do
+    content_type :json
+    get_pharmacies('pharmacies_profiles_staging', params)
+  end
+
+  get '/pharmacies_profiles' do
+    content_type :json
+    get_pharmacies('pharmacies_profiles_production', params)
   end
 
   # Hospitals Search
