@@ -40,6 +40,22 @@ class KulcareSearch < Sinatra::Base
     get_medicines('medicines_production', params)
   end
 
+  # Basic Medicines Search
+  get '/basic_medicines_development' do
+    content_type :json
+    get_medicines('basic_medicines_development', params)
+  end
+
+  get '/basic_medicines_staging' do
+    content_type :json
+    get_medicines('basic_medicines_staging', params)
+  end
+
+  get '/basic_medicines' do
+    content_type :json
+    get_medicines('basic_medicines_production', params)
+  end
+
   # Basic Specialities Search
   get '/basic_specialities_development' do
     content_type :json
