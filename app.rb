@@ -327,7 +327,7 @@ class KulcareSearch < Sinatra::Base
     get_basic_hospitals_data('medicine_instructions_production', params)
   end
 
-  # Bascic Clinic Services
+  # Basic Clinic Services
   get '/basic_clinic_services_development' do
     content_type :json
     get_basic_hospitals_data('basic_clinic_services_development', params)
@@ -341,6 +341,22 @@ class KulcareSearch < Sinatra::Base
   get '/basic_clinic_services' do
     content_type :json
     get_basic_hospitals_data('basic_clinic_services_production', params)
+  end
+
+  # Basic Clinic Specialities
+  get '/basic_clinic_specialities_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_clinic_specialities_development', params)
+  end
+
+  get '/basic_clinic_specialities_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_clinic_specialities_staging', params)
+  end
+
+  get '/basic_clinic_specialities' do
+    content_type :json
+    get_basic_hospitals_data('basic_clinic_specialities_production', params)
   end
 
   # CORS Configuration
