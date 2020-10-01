@@ -280,6 +280,22 @@ class KulcareSearch < Sinatra::Base
     get_basic_hospitals_data('basic_complaints_production', params)
   end
 
+  # Basic Practices Diagnosis Search
+  get '/basic_diagnosis_development' do
+    content_type :json
+    get_basic_hospitals_data('basic_diagnoses_development', params)
+  end
+
+  get '/basic_diagnosis_staging' do
+    content_type :json
+    get_basic_hospitals_data('basic_diagnoses_staging', params)
+  end
+
+  get '/basic_diagnosis' do
+    content_type :json
+    get_basic_hospitals_data('basic_diagnoses_production', params)
+  end
+
   get '/basic_vitals_development' do
     content_type :json
     get_basic_hospitals_data('basic_vitals_development', params)
